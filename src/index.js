@@ -20,7 +20,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
   }
 
   const styles = keys
-    .map(key => customStyling[key] || defaultStyling[key])
+    .reduce((s, key) => [...s, defaultStyling[key], customStyling[key]], [])
     .filter(truthy);
 
   return styles.reduce((obj, s) => {
