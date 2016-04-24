@@ -1,8 +1,9 @@
 import curry from 'lodash.curry';
-import base16, { default as DEFAULT_BASE16 } from 'base16';
+import * as base16 from 'base16';
 
 const truthy = x => x;
 const returnEmptyObject = () => ({});
+const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
 const GRAY_COLORS = Array.from({ length: 8 }).map((_, idx) => `base0${idx}`);
