@@ -37,7 +37,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
 }
 
 const createStyling = curry(
-  (options, themeOrStyling={}, base16Themes={}, isLightTheme, ...args) => {
+  (options, themeOrStyling={}, base16Themes, isLightTheme, ...args) => {
     const {
       getStylingFromBase16=returnEmptyObject,
       defaultBase16=DEFAULT_BASE16
@@ -64,13 +64,13 @@ const createStyling = curry(
   }, 4
 );
 
-const getBase16Theme = (theme, base16Themes={}) => {
+const getBase16Theme = (theme, base16Themes) => {
   if (theme && theme.extend) {
     theme = theme.extend;
   }
 
   if (typeof theme === 'string') {
-    theme = base16Themes[theme] || base16[theme];
+    theme = (base16Themes || {})[theme] || base16[theme];
   }
 
   return theme && theme.hasOwnProperty('base00') ? theme : undefined;
