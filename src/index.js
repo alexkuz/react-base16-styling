@@ -2,7 +2,6 @@ import curry from 'lodash.curry';
 import * as base16 from 'base16';
 
 const truthy = x => x;
-const returnEmptyObject = () => ({});
 const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
@@ -37,11 +36,11 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
   }, { className: '', style: {} });
 }
 
-const createStyling = curry(
-  (options, themeOrStyling={}, base16Themes, isLightTheme, ...args) => {
+export const createStyling = curry(
+  (getStylingFromBase16, options, themeOrStyling={}, isLightTheme, ...args) => {
     const {
-      getStylingFromBase16=returnEmptyObject,
-      defaultBase16=DEFAULT_BASE16
+      defaultBase16=DEFAULT_BASE16,
+      base16Themes=null
     } = options;
 
     const base16Theme = getBase16Theme(themeOrStyling, base16Themes);
@@ -65,7 +64,7 @@ const createStyling = curry(
   }, 4
 );
 
-const getBase16Theme = (theme, base16Themes) => {
+export const getBase16Theme = (theme, base16Themes) => {
   if (theme && theme.extend) {
     theme = theme.extend;
   }
@@ -76,5 +75,3 @@ const getBase16Theme = (theme, base16Themes) => {
 
   return theme && theme.hasOwnProperty('base00') ? theme : undefined;
 }
-
-export { createStyling, getBase16Theme };
