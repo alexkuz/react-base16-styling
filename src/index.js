@@ -1,18 +1,32 @@
 import curry from 'lodash.curry';
 import * as base16 from 'base16';
+import rgb2hex from 'pure-color/convert/rgb2hex';
+import parse from 'pure-color/parse';
+import flow from 'lodash.flow';
+var rgb = require('color-space/rgb');
+var yuv = require('color-space/yuv');
 
 const truthy = x => x;
 const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
-const GRAY_COLORS = Array.from({ length: 8 }).map((_, idx) => `base0${idx}`);
 
-const getReversedKey = key =>
-  (GRAY_COLORS.indexOf(key) !== -1) ? `base0${7 - key.match(/base0(\d)/)[1]}` : key;
+// we need a correcting factor, so that a dark, but not black background color
+// converts to bright enough inversed color
+const flip = x => x < 0.25 ? 1 : (x < 0.5 ? (0.9 - x) : 1.1 - x);
 
-const reverseTheme = theme =>
+const invertColor = flow(
+  parse,
+  rgb.yuv,
+  ([y, u, v]) => [flip(y), u, v],
+  yuv.rgb,
+  rgb2hex
+);
+
+const invertThemeColors = theme =>
   Object.keys(theme).reduce((t, key) =>
-    (t[getReversedKey(key)] = theme[key], t), {});
+    /^base/.test(key) ?
+    (t[key] = invertColor(theme[key]), t) : t, {});
 
 const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
   if (!Array.isArray(keys)) {
@@ -37,7 +51,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
 }
 
 export const createStyling = curry(
-  (getStylingFromBase16, options, themeOrStyling={}, isLightTheme, ...args) => {
+  (getStylingFromBase16, options, themeOrStyling={}, invertTheme, ...args) => {
     const {
       defaultBase16=DEFAULT_BASE16,
       base16Themes=null
@@ -58,7 +72,7 @@ export const createStyling = curry(
       (BASE16_KEYS.indexOf(key) === -1) ?
         (s[key] = themeOrStyling[key], s) : s, {});
 
-    const defaultStyling = getStylingFromBase16(isLightTheme ? reverseTheme(theme) : theme);
+    const defaultStyling = getStylingFromBase16(invertTheme ? invertThemeColors(theme) : theme);
 
     return curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
   }, 4
