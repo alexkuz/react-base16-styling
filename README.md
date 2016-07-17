@@ -68,7 +68,7 @@ Argument | Signature | Description
 `getStylingFromBase16` | `function(base16Theme)` | creates object with default stylings for your component, using provided base16 theme.
 `defaultStylingOptions` | `{ defaultBase16, base16Themes }` | optional parameters, allow to set default `base16` theme and additional `base16` themes for component
 `themeOrStyling` | `string` or `object` | `base16` theme name, `base16` theme object or styling object
-`isLightTheme` | `boolean` | if `true`, theme colors are inverted, creating light version of the theme
+`invertTheme` | `boolean` | if `true`, theme colors are inverted, creating light version of the theme
 
 
 Styling object values could be:
