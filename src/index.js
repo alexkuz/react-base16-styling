@@ -74,7 +74,11 @@ export const createStyling = curry(
 
     const defaultStyling = getStylingFromBase16(invertTheme ? invertThemeColors(theme) : theme);
 
-    return curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
+    const styling = curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
+
+    styling.defaultStyling = defaultStyling;
+
+    return styling;
   }, 4
 );
 
