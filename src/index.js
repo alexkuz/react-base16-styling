@@ -29,6 +29,10 @@ const invertThemeColors = theme =>
     (t[key] = invertColor(theme[key]), t) : t, {});
 
 const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
+  if (keys === null) {
+    return defaultStyling;
+  }
+
   if (!Array.isArray(keys)) {
     keys = [keys];
   }
@@ -74,11 +78,7 @@ export const createStyling = curry(
 
     const defaultStyling = getStylingFromBase16(invertTheme ? invertThemeColors(theme) : theme);
 
-    const styling = curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
-
-    styling.defaultStyling = defaultStyling;
-
-    return styling;
+    return curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
   }, 4
 );
 
