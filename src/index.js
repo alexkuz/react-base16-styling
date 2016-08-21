@@ -51,7 +51,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
 }
 
 export const createStyling = curry(
-  (getStylingFromBase16, options, themeOrStyling={}, invertTheme, ...args) => {
+  (getStylingFromBase16, options={}, themeOrStyling={}, invertTheme, ...args) => {
     const {
       defaultBase16=DEFAULT_BASE16,
       base16Themes=null
