@@ -39,7 +39,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
 
   return styles.reduce((obj, s) => {
     if (typeof s === 'string') {
-      return { ...obj, className: obj.className + ' ' + s };
+      return { ...obj, className: [obj.className, s].filter(c => c).join(' ') };
     } else if (typeof s === 'object') {
       return { ...obj, style: { ...obj.style, ...s } };
     } else if (typeof s === 'function') {
