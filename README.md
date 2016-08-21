@@ -40,10 +40,10 @@ const createStylingFromTheme = createStyling(getStylingFromBase16, {
 class MyComponent extends Component {
   state = { clickCount: 0 }
   render() {
-    const { theme, isLightTheme } = this.props;
+    const { theme, invertTheme } = this.props;
     const { clickCount } = this.state;
     
-    const styling = createStylingFromTheme(theme, isLightTheme);
+    const styling = createStylingFromTheme(theme, invertTheme);
     
     return (
       <div {...styling('myComponent')}>
