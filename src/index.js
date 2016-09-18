@@ -41,17 +41,27 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
     .reduce((s, key) => [...s, defaultStyling[key], customStyling[key]], [])
     .filter(truthy);
 
-  return styles.reduce((obj, s) => {
+  const props = styles.reduce((obj, s) => {
     if (typeof s === 'string') {
-      return { ...obj, className: [obj.className, s].filter(c => c).join(' ') };
+      obj.className = [obj.className, s].filter(c => c).join(' ');
     } else if (typeof s === 'object') {
-      return { ...obj, style: { ...obj.style, ...s } };
+      obj.style = { ...obj.style, ...s };
     } else if (typeof s === 'function') {
-      return { ...obj, ...s(obj, ...args) };
-    } else {
-      return obj;
+      obj = { ...obj, ...s(obj, ...args) };
     }
+
+    return obj;
   }, { className: '', style: {} });
+
+  if (!props.className) {
+    delete props.className;
+  }
+
+  if (Object.keys(props.style).length === 0) {
+    delete props.style;
+  }
+
+  return props;
 }
 
 export const createStyling = curry(
