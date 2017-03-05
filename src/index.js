@@ -3,10 +3,9 @@ import * as base16 from 'base16';
 import rgb2hex from 'pure-color/convert/rgb2hex';
 import parse from 'pure-color/parse';
 import flow from 'lodash.flow';
-var rgb = require('color-space/rgb');
-var yuv = require('color-space/yuv');
+import rgb from 'color-space/rgb';
+import yuv from 'color-space/yuv';
 
-const truthy = x => x;
 const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
@@ -28,30 +27,116 @@ const invertThemeColors = theme =>
     /^base/.test(key) ?
     (t[key] = invertColor(theme[key]), t) : t, {});
 
-const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
-  if (keys === null) {
+const merger = function merger(styling) {
+  return prevStyling => ({
+    className: [prevStyling.className, styling.className].filter(Boolean).join(' '),
+    style: { ...(prevStyling || {}), ...(styling || {}) }
+  });
+};
+
+const mergeStyling = function mergeStyling(customStyling, defaultStyling) {
+  if (customStyling === undefined) {
     return defaultStyling;
+  }
+  if (defaultStyling === undefined) {
+    return customStyling;
+  }
+
+  const customType = typeof customStyling;
+  const defaultType = typeof defaultStyling;
+
+  switch (customType) {
+  case 'string':
+    switch (defaultType) {
+    case 'string':
+      return `${defaultStyling} ${customStyling}`;
+    case 'object':
+      return merger({ className: customStyling, style: defaultStyling });
+    case 'function':
+      return (styling, ...args) => ({
+        ...defaultStyling(styling, ...args),
+        className: customStyling
+      });
+    }
+  case 'object':
+    switch (defaultType) {
+    case 'string':
+      return merger({ className: defaultStyling, style: customStyling });
+    case 'object':
+      return { ...defaultStyling, ...customStyling };
+    case 'function':
+      return (styling, ...args) => ({
+        ...defaultStyling(styling, ...args),
+        style: customStyling
+      });
+    }
+  case 'function':
+    switch (defaultType) {
+    case 'string':
+      return (styling, ...args) => customStyling({
+        ...styling,
+        className: defaultStyling
+      }, ...args);
+    case 'object':
+      return (styling, ...args) => customStyling({
+        ...styling,
+        style: defaultStyling
+      }, ...args);
+    case 'function':
+      return (styling, ...args) => customStyling(
+        defaultStyling(styling, ...args),
+        ...args
+      );
+    }
+  }
+};
+
+const mergeStylings = function mergeStylings(customStylings, defaultStylings) {
+  const keys = Object.keys(defaultStylings);
+  for (const key in customStylings) {
+    if (keys.indexOf(key) === -1) keys.push(key);
+  }
+
+  return keys.reduce(
+    (mergedStyling, key) => (
+      mergedStyling[key] = mergeStyling(customStylings[key], defaultStylings[key]),
+      mergedStyling
+    ), {}
+  );
+};
+
+const getStylingByKeys = (mergedStyling, keys, ...args) => {
+  if (keys === null) {
+    return mergedStyling;
   }
 
   if (!Array.isArray(keys)) {
     keys = [keys];
   }
 
-  const styles = keys
-    .reduce((s, key) => [...s, defaultStyling[key], customStyling[key]], [])
-    .filter(truthy);
+  const styles = keys.map(key => mergedStyling[key]).filter(Boolean);
 
-  return styles.reduce((obj, s) => {
+  const props = styles.reduce((obj, s) => {
     if (typeof s === 'string') {
-      return { ...obj, className: [obj.className, s].filter(c => c).join(' ') };
+      obj.className = [obj.className, s].filter(Boolean).join(' ');
     } else if (typeof s === 'object') {
-      return { ...obj, style: { ...obj.style, ...s } };
+      obj.style = { ...obj.style, ...s };
     } else if (typeof s === 'function') {
-      return { ...obj, ...s(obj, ...args) };
-    } else {
-      return obj;
+      obj = { ...obj, ...s(obj, ...args) };
     }
+
+    return obj;
   }, { className: '', style: {} });
+
+  if (!props.className) {
+    delete props.className;
+  }
+
+  if (Object.keys(props.style).length === 0) {
+    delete props.style;
+  }
+
+  return props;
 }
 
 export const createStyling = curry(
@@ -78,7 +163,9 @@ export const createStyling = curry(
 
     const defaultStyling = getStylingFromBase16(invertTheme ? invertThemeColors(theme) : theme);
 
-    return curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
+    const mergedStyling = mergeStylings(customStyling, defaultStyling);
+
+    return curry(getStylingByKeys, 2)(mergedStyling, ...args);
   }, 4
 );
 
