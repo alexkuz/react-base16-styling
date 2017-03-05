@@ -95,6 +95,6 @@ test('createStyling', t => {
   const styling = createStyling(getStylingFromBase16, { defaultBase16: apathy });
   const defaultStyling = styling(undefined);
 
-  t.deepEqual(defaultStyling('testClass'), { className: 'testClass', style: {} });
-  t.deepEqual(defaultStyling('testStyle'), { className: '', style: { color: apathy.base00 } });
+  t.deepEqual(defaultStyling('testClass'), { className: 'testClass' });
+  t.deepEqual(defaultStyling('testStyle'), { style: { color: apathy.base00 } });
 });
