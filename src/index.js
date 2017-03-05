@@ -1,12 +1,12 @@
+// @flow
 import curry from 'lodash.curry';
 import * as base16 from 'base16';
 import rgb2hex from 'pure-color/convert/rgb2hex';
 import parse from 'pure-color/parse';
 import flow from 'lodash.flow';
-var rgb = require('color-space/rgb');
-var yuv = require('color-space/yuv');
+import rgb from 'color-space/rgb';
+import yuv from 'color-space/yuv';
 
-const truthy = x => x;
 const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
@@ -23,11 +23,6 @@ const invertColor = flow(
   rgb2hex
 );
 
-const invertThemeColors = theme =>
-  Object.keys(theme).reduce((t, key) =>
-    /^base/.test(key) ?
-    (t[key] = invertColor(theme[key]), t) : t, {});
-
 const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
   if (keys === null) {
     return defaultStyling;
@@ -39,7 +34,7 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
 
   const styles = keys
     .reduce((s, key) => [...s, defaultStyling[key], customStyling[key]], [])
-    .filter(truthy);
+    .filter(Boolean);
 
   return styles.reduce((obj, s) => {
     if (typeof s === 'string') {
@@ -54,8 +49,13 @@ const getStylingByKeys = (customStyling, defaultStyling, keys, ...args) => {
   }, { className: '', style: {} });
 }
 
+export const invertTheme = theme =>
+  Object.keys(theme).reduce((t, key) =>
+    (t[key] = /^base/.test(key) ? invertColor(theme[key]) :
+      key === 'scheme' ? theme[key] + ':inverted' : theme[key], t), {});
+
 export const createStyling = curry(
-  (getStylingFromBase16, options={}, themeOrStyling={}, invertTheme, ...args) => {
+  (getStylingFromBase16, options={}, themeOrStyling={}, ...args) => {
     const {
       defaultBase16=DEFAULT_BASE16,
       base16Themes=null
@@ -76,10 +76,10 @@ export const createStyling = curry(
       (BASE16_KEYS.indexOf(key) === -1) ?
         (s[key] = themeOrStyling[key], s) : s, {});
 
-    const defaultStyling = getStylingFromBase16(invertTheme ? invertThemeColors(theme) : theme);
+    const defaultStyling = getStylingFromBase16(theme);
 
     return curry(getStylingByKeys, 3)(customStyling, defaultStyling, ...args);
-  }, 4
+  }, 3
 );
 
 export const getBase16Theme = (theme, base16Themes) => {
@@ -88,7 +88,11 @@ export const getBase16Theme = (theme, base16Themes) => {
   }
 
   if (typeof theme === 'string') {
-    theme = (base16Themes || {})[theme] || base16[theme];
+    const [themeName, modifier] = theme.split(':');
+    theme = (base16Themes || {})[themeName] || base16[themeName];
+    if (modifier === 'inverted') {
+      theme = invertTheme(theme);
+    }
   }
 
   return theme && theme.hasOwnProperty('base00') ? theme : undefined;

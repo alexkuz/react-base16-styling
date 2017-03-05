@@ -40,10 +40,10 @@ const createStylingFromTheme = createStyling(getStylingFromBase16, {
 class MyComponent extends Component {
   state = { clickCount: 0 }
   render() {
-    const { theme, invertTheme } = this.props;
+    const { theme } = this.props;
     const { clickCount } = this.state;
     
-    const styling = createStylingFromTheme(theme, invertTheme);
+    const styling = createStylingFromTheme(theme);
     
     return (
       <div {...styling('myComponent')}>
@@ -60,16 +60,14 @@ class MyComponent extends Component {
 ## `createStyling`
 
 ```js
-function(getStylingFromBase16, defaultStylingOptions, themeOrStyling, isLightTheme)
+function(getStylingFromBase16, defaultStylingOptions, themeOrStyling)
 ```
 
 Argument | Signature | Description
 ----|-----|-----
 `getStylingFromBase16` | `function(base16Theme)` | creates object with default stylings for your component, using provided base16 theme.
-`defaultStylingOptions` | `{ defaultBase16, base16Themes }` | optional parameters, allow to set default `base16` theme and additional `base16` themes for component
-`themeOrStyling` | `string` or `object` | `base16` theme name, `base16` theme object or styling object
-`invertTheme` | `boolean` | if `true`, theme colors are inverted, creating light version of the theme
-
+`defaultStylingOptions` | `{ defaultBase16, base16Themes }` | optional parameters, allow to set default `base16` theme and additional `base16` themes for component.
+`themeOrStyling` | `string` or `object` | `base16` theme name, `base16` theme object or styling object. Theme name can have a modifier: `"themeName:inverted"` to invert theme colors (see [[#invertTheme]])
 
 Styling object values could be:
     - objects (treated as style definitions)
@@ -82,3 +80,10 @@ function(themeOrStyling, base16Themes)
 ```
 
 Helper method that returns `base16` theme object if `themeOrStyling` is `base16` theme name or theme object.
+
+## `invertTheme`
+```js
+function(theme)
+```
+
+Helper method that inverts `base16` theme colors, creating light theme out of dark one or vice versa.
