@@ -1,3 +1,4 @@
+// @flow
 import test from 'ava';
 import { createStyling, invertTheme, getBase16Theme } from '../src';
 import apathy from 'base16/lib/apathy';
@@ -71,7 +72,7 @@ const getStylingFromBase16 = base16 => ({
     color: base16.base00
   },
   testFunc: ({ className, style }, arg) => ({
-    className: 'test--' + arg,
+    className: 'testClass--' + arg,
     style: {
       ...style,
       width: 0,
@@ -91,10 +92,57 @@ test('getBase16Theme', t => {
   t.is(getBase16Theme({}), undefined);
 });
 
-test('createStyling', t => {
+test('createStyling (default)', t => {
   const styling = createStyling(getStylingFromBase16, { defaultBase16: apathy });
   const defaultStyling = styling(undefined);
 
   t.deepEqual(defaultStyling('testClass'), { className: 'testClass' });
   t.deepEqual(defaultStyling('testStyle'), { style: { color: apathy.base00 } });
+  t.deepEqual(defaultStyling('testFunc', 'mod'), {
+    className: 'testClass--mod',
+    style: {
+      width: 0,
+      color: apathy.base00
+    }
+  });
+});
+
+test('createStyling (custom)', t => {
+  const styling = createStyling(getStylingFromBase16, { defaultBase16: apathy });
+  let customStyling = styling({
+    testClass: 'customClass',
+    testStyle: { height: 0 },
+    testFunc: (styling, arg) => ({
+      className: styling.className + ' customClass--' + arg,
+      style: {
+        ...styling.style,
+        border: 0
+      }
+    })
+  });
+
+  t.deepEqual(customStyling('testClass'), { className: 'testClass customClass' });
+  t.deepEqual(customStyling('testStyle'), { style: { color: apathy.base00, height: 0 } });
+  t.deepEqual(customStyling('testFunc', 'mod'), {
+    className: 'testClass--mod customClass--mod',
+    style: {
+      width: 0,
+      color: apathy.base00,
+      border: 0
+    }
+  });
+
+  customStyling = styling({
+    testClass: () => ({
+      className: 'customClass'
+    }),
+    testStyle: () => ({
+      style: {
+        border: 0
+      }
+    })
+  });
+
+  t.deepEqual(customStyling('testClass'), { className: 'customClass' });
+  t.deepEqual(customStyling('testStyle'), { style: { border: 0 } });
 });

@@ -7,6 +7,8 @@ import flow from 'lodash.flow';
 import rgb from 'color-space/rgb';
 import yuv from 'color-space/yuv';
 
+import type { Theme, Base16Theme, GetDefaultStyling, StylingOptions } from './types';
+
 const DEFAULT_BASE16 = base16.default;
 
 const BASE16_KEYS = Object.keys(DEFAULT_BASE16);
@@ -135,42 +137,45 @@ const getStylingByKeys = (mergedStyling, keys, ...args) => {
   return props;
 }
 
-export const invertTheme = theme =>
+export const invertTheme = (theme: Base16Theme): Base16Theme =>
   Object.keys(theme).reduce((t, key) =>
     (t[key] = /^base/.test(key) ? invertColor(theme[key]) :
       key === 'scheme' ? theme[key] + ':inverted' : theme[key], t), {});
 
-export const createStyling = curry(
-  (getStylingFromBase16, options={}, themeOrStyling={}, ...args) => {
-    const {
-      defaultBase16=DEFAULT_BASE16,
-      base16Themes=null
-    } = options;
+export const createStyling = curry((
+  getStylingFromBase16: GetDefaultStyling,
+  options: StylingOptions={},
+  themeOrStyling: Theme={},
+  ...args
+) => {
+  const {
+    defaultBase16=DEFAULT_BASE16,
+    base16Themes=null
+  } = options;
 
-    const base16Theme = getBase16Theme(themeOrStyling, base16Themes);
-    if (base16Theme) {
-      themeOrStyling = {
-        ...base16Theme,
-        ...themeOrStyling
-      };
-    }
+  const base16Theme = getBase16Theme(themeOrStyling, base16Themes);
+  if (base16Theme) {
+    themeOrStyling = {
+      ...base16Theme,
+      ...themeOrStyling
+    };
+  }
 
-    const theme = BASE16_KEYS.reduce((t, key) =>
-      (t[key] = themeOrStyling[key] || defaultBase16[key], t), {});
+  const theme = BASE16_KEYS.reduce((t, key) =>
+    (t[key] = themeOrStyling[key] || defaultBase16[key], t), {});
 
-    const customStyling = Object.keys(themeOrStyling).reduce((s, key) =>
-      (BASE16_KEYS.indexOf(key) === -1) ?
-        (s[key] = themeOrStyling[key], s) : s, {});
+  const customStyling = Object.keys(themeOrStyling).reduce((s, key) =>
+    (BASE16_KEYS.indexOf(key) === -1) ?
+      (s[key] = themeOrStyling[key], s) : s, {});
 
-    const defaultStyling = getStylingFromBase16(theme);
+  const defaultStyling = getStylingFromBase16(theme);
 
-    const mergedStyling = mergeStylings(customStyling, defaultStyling);
+  const mergedStyling = mergeStylings(customStyling, defaultStyling);
 
-    return curry(getStylingByKeys, 2)(mergedStyling, ...args);
-  }, 3
-);
+  return curry(getStylingByKeys, 2)(mergedStyling, ...args);
+}, 3);
 
-export const getBase16Theme = (theme, base16Themes) => {
+export const getBase16Theme = (theme: Theme, base16Themes: ?Base16Theme[]): ?Base16Theme => {
   if (theme && theme.extend) {
     theme = theme.extend;
   }

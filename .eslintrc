@@ -19,18 +19,20 @@
     "quotes": ["warn", "single", "avoid-escape"],
     "curly": ["off"],
 
-    "generator-star-spacing": "off",
+    "generator-star-spacing": "warn",
     "new-cap": "off",
     "object-curly-spacing": "off",
-    "object-shorthand": "off",
+    "object-shorthand": "warn",
 
-    "babel/generator-star-spacing": "warn",
     "babel/new-cap": "warn",
-    "babel/object-curly-spacing": ["warn", "always"],
-    "babel/object-shorthand": "warn"
+    "babel/object-curly-spacing": ["warn", "always"]
   },
+  "extends": [
+    "plugin:flowtype/recommended"
+  ],
   "plugins": [
-    "babel"
+    "babel",
+    "flowtype"
   ],
   "settings": {
     "ecmascript": 6,
