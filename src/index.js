@@ -25,10 +25,12 @@ const invertColor = flow(
   rgb2hex
 );
 
-const merger = function merger(styling) {
-  return prevStyling => ({
+type OptStyling = { className?: string, style?: Object };
+
+const merger = function merger(styling: OptStyling) {
+  return (prevStyling: OptStyling) => ({
     className: [prevStyling.className, styling.className].filter(Boolean).join(' '),
-    style: { ...(prevStyling || {}), ...(styling || {}) }
+    style: { ...(prevStyling.style || {}), ...(styling.style || {}) }
   });
 };
 
@@ -47,14 +49,13 @@ const mergeStyling = function mergeStyling(customStyling, defaultStyling) {
   case 'string':
     switch (defaultType) {
     case 'string':
-      return `${defaultStyling} ${customStyling}`;
+      return [defaultStyling, customStyling].filter(Boolean).join(' ');
     case 'object':
       return merger({ className: customStyling, style: defaultStyling });
     case 'function':
-      return (styling, ...args) => ({
-        ...defaultStyling(styling, ...args),
+      return (styling, ...args) => merger({
         className: customStyling
-      });
+      })(defaultStyling(styling, ...args));
     }
   case 'object':
     switch (defaultType) {
@@ -63,23 +64,20 @@ const mergeStyling = function mergeStyling(customStyling, defaultStyling) {
     case 'object':
       return { ...defaultStyling, ...customStyling };
     case 'function':
-      return (styling, ...args) => ({
-        ...defaultStyling(styling, ...args),
+      return (styling, ...args) => merger({
         style: customStyling
-      });
+      })(defaultStyling(styling, ...args));
     }
   case 'function':
     switch (defaultType) {
     case 'string':
-      return (styling, ...args) => customStyling({
-        ...styling,
+      return (styling, ...args) => customStyling(merger(styling)({
         className: defaultStyling
-      }, ...args);
+      }), ...args);
     case 'object':
-      return (styling, ...args) => customStyling({
-        ...styling,
+      return (styling, ...args) => customStyling(merger(styling)({
         style: defaultStyling
-      }, ...args);
+      }), ...args);
     case 'function':
       return (styling, ...args) => customStyling(
         defaultStyling(styling, ...args),

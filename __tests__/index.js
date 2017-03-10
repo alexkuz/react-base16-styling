@@ -78,7 +78,13 @@ const getStylingFromBase16 = base16 => ({
       width: 0,
       color: base16.base00
     }
-  })
+  }),
+  baseStyle: {
+    color: 'red'
+  },
+  additionalStyle: {
+    border: 0
+  }
 });
 
 test('invertTheme', t => {
@@ -146,3 +152,29 @@ test('createStyling (custom)', t => {
   t.deepEqual(customStyling('testClass'), { className: 'customClass' });
   t.deepEqual(customStyling('testStyle'), { style: { border: 0 } });
 });
+
+test('createStyling (multiple)', t => {
+  const styling = createStyling(getStylingFromBase16, { defaultBase16: apathy });
+  let customStyling = styling({
+    baseStyle: ({ style }) => ({ style: { ...style, color: 'blue' } })
+  });
+
+  t.deepEqual(customStyling(['baseStyle', 'additionalStyle']), {
+    style: {
+      color: 'blue',
+      border: 0
+    }
+  });
+
+  customStyling = styling({
+    additionalStyle: ({ style }) => ({ style: { ...style, border: 1 } })
+  });
+
+  t.deepEqual(customStyling(['baseStyle', 'additionalStyle']), {
+    style: {
+      color: 'red',
+      border: 1
+    }
+  });
+});
+
