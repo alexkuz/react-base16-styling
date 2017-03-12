@@ -4,8 +4,7 @@ import * as base16 from 'base16';
 import rgb2hex from 'pure-color/convert/rgb2hex';
 import parse from 'pure-color/parse';
 import flow from 'lodash.flow';
-import rgb from 'color-space/rgb';
-import yuv from 'color-space/yuv';
+import { yuv2rgb, rgb2yuv } from './colorConverters';
 
 import type { Theme, Base16Theme, GetDefaultStyling, StylingOptions } from './types';
 
@@ -19,9 +18,9 @@ const flip = x => x < 0.25 ? 1 : (x < 0.5 ? (0.9 - x) : 1.1 - x);
 
 const invertColor = flow(
   parse,
-  rgb.yuv,
+  rgb2yuv,
   ([y, u, v]) => [flip(y), u, v],
-  yuv.rgb,
+  yuv2rgb,
   rgb2hex
 );
 

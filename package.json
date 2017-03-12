@@ -48,7 +48,6 @@
   },
   "dependencies": {
     "base16": "^1.0.0",
-    "color-space": "^1.14.3",
     "lodash.curry": "^4.0.1",
     "lodash.flow": "^3.3.0",
     "pure-color": "^1.2.0"
