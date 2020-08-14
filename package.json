@@ -32,14 +32,16 @@
   },
   "homepage": "https://github.com/alexkuz/react-base16-styling#readme",
   "devDependencies": {
-    "ava": "^0.24.0",
-    "babel-cli": "^6.6.5",
-    "babel-core": "^6.7.4",
-    "babel-eslint": "^8.0.3",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.6.0",
-    "babel-preset-env": "^1.6.1",
+    "@ava/babel": "^1.0.1",
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/register": "^7.10.5",
+    "ava": "^3.11.1",
+    "babel-eslint": "^9.0.0",
     "eslint": "^4.13.1",
     "eslint-plugin-babel": "^4.1.0",
     "eslint-plugin-flowtype": "^2.30.0",
@@ -57,9 +59,9 @@
     "test"
   ],
   "ava": {
+    "babel": true,
     "require": [
-      "babel-register"
-    ],
-    "babel": "inherit"
+      "@babel/register"
+    ]
   }
 }
