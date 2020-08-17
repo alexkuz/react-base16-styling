@@ -1,3 +1,5 @@
+<table><tr></tr><tr><td><h3>🏚</h3></td><td><b>This package was merged into <a href="https://github.com/reduxjs/redux-devtools"><code>redux-devtools</code> monorepo</pre></a>. Please refer to that repository for the latest updates, issues and pull requests.</b></td></tr></table>
+
 # react-base16-styling [![Build Status](https://img.shields.io/travis/alexkuz/react-base16-styling/master.svg)](https://travis-ci.org/alexkuz/react-base16-styling) [![Latest Stable Version](https://img.shields.io/npm/v/react-base16-styling.svg)](https://www.npmjs.com/package/react-base16-styling)
 
 React styling with base16 color scheme support
