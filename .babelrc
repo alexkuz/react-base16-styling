@@ -1,8 +1,10 @@
 {
-  "presets": ["env"],
+  "presets": [
+    "@babel/preset-env",
+    "@babel/preset-flow"
+  ],
   "plugins": [
-    "transform-object-rest-spread",
-    "transform-runtime",
-    "transform-flow-strip-types"
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-transform-flow-strip-types"
   ]
 }
